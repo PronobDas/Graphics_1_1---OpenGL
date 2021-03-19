@@ -60,16 +60,16 @@ void drawAxes()
 
 		glBegin(GL_LINES);{
 		    glColor3f(1.0, 0, 0);
-			glVertex3f( 200,0,0);
-			glVertex3f(-200,0,0);
+			glVertex3f( 400,0,0);
+			glVertex3f(-400,0,0);
 
 			glColor3f(0, 1.0, 0);
-			glVertex3f(0,-200,0);
-			glVertex3f(0, 200,0);
+			glVertex3f(0,-400,0);
+			glVertex3f(0, 400,0);
 
 			glColor3f(0, 0, 1.0);
-			glVertex3f(0,0, 200);
-			glVertex3f(0,0,-200);
+			glVertex3f(0,0, 400);
+			glVertex3f(0,0,-400);
 		}glEnd();
 	}
 }
@@ -274,7 +274,6 @@ void drawSphere2(double radius,int slices,int stacks)
 	for(i=0;i<stacks;i++)
 	{
         //glColor3f((double)i/(double)stacks,(double)i/(double)stacks,(double)i/(double)stacks);
-
 		for(j=0;j<slices;j++)
 		{
 		    glColor3f(1-a,1-a,1-a);
@@ -295,6 +294,50 @@ void drawSphere2(double radius,int slices,int stacks)
 	}
 }
 
+
+void drawSphere3(double radius,int slices,int stacks)
+{
+	struct point points[100][100];
+	int i,j;
+	double h,r;
+	int a = 1;
+	//generate points
+	for(i=0;i<=stacks;i++)
+	{
+		h=radius*sin(((double)i/(double)stacks)*(pi/2));
+		r=radius*cos(((double)i/(double)stacks)*(pi/2));
+		r = 2 *radius - r;
+		for(j=0;j<=slices;j++)
+		{
+			points[i][j].x=r*cos(((double)j/(double)slices)*2*pi);
+			points[i][j].y=r*sin(((double)j/(double)slices)*2*pi);
+			points[i][j].z=h;
+		}
+	}
+	//draw quads using generated points
+	for(i=0;i<stacks;i++)
+	{
+        //glColor3f((double)i/(double)stacks,(double)i/(double)stacks,(double)i/(double)stacks);
+
+		for(j=0;j<slices;j++)
+		{
+		    glColor3f(1-a,1-a,1-a);
+		    a = 1 - a;
+			glBegin(GL_QUADS);{
+			    //upper hemisphere
+				//glVertex3f(points[i][j].x,points[i][j].y,points[i][j].z);
+				//glVertex3f(points[i][j+1].x,points[i][j+1].y,points[i][j+1].z);
+				//glVertex3f(points[i+1][j+1].x,points[i+1][j+1].y,points[i+1][j+1].z);
+				//glVertex3f(points[i+1][j].x,points[i+1][j].y,points[i+1][j].z);
+                //lower hemisphere
+                glVertex3f(points[i][j].x,points[i][j].y,-points[i][j].z);
+				glVertex3f(points[i][j+1].x,points[i][j+1].y,-points[i][j+1].z);
+				glVertex3f(points[i+1][j+1].x,points[i+1][j+1].y,-points[i+1][j+1].z);
+				glVertex3f(points[i+1][j].x,points[i+1][j].y,-points[i+1][j].z);
+			}glEnd();
+		}
+	}
+}
 
 
 void drawCylinder(double radius, double height, int slices,int stacks)
@@ -329,11 +372,6 @@ void drawCylinder(double radius, double height, int slices,int stacks)
 				glVertex3f(points[i][j+1].x,points[i][j+1].y,points[i][j+1].z);
 				glVertex3f(points[i+1][j+1].x,points[i+1][j+1].y,points[i+1][j+1].z);
 				glVertex3f(points[i+1][j].x,points[i+1][j].y,points[i+1][j].z);
-                //lower hemisphere
-                //glVertex3f(points[i][j].x,points[i][j].y,-points[i][j].z);
-				//glVertex3f(points[i][j+1].x,points[i][j+1].y,-points[i][j+1].z);
-				//glVertex3f(points[i+1][j+1].x,points[i+1][j+1].y,-points[i+1][j+1].z);
-				//glVertex3f(points[i+1][j].x,points[i+1][j].y,-points[i+1][j].z);
 			}glEnd();
 		}
 	}
@@ -341,24 +379,35 @@ void drawCylinder(double radius, double height, int slices,int stacks)
 
 void myDraw()
 {
-    glRotatef(angle1, 0,0,1);
+    glPushMatrix();
+    {
+        glRotatef(angle1, 0,0,1);
 
-    glColor3f(0, 1, 0.5);
+        glColor3f(0, 1, 0.5);
+        glRotatef(90, 1,0,0);
+        drawSphere1(35, 100, 50); // left sphere of the gun
+
+        glRotatef(angle2, 1,0,0);
+
+        drawSphere2(35, 100, 50); // right sphere of the gun
+
+        glTranslatef(0, 0, -50);
+
+        glRotatef(angle3, 1,0,0);
+        glRotatef(angle4, 0,0,1);
+        drawSphere1(15, 36, 36);  // connector of sphere and cylinder
+
+        glTranslatef(0, 0, -100);
+        drawCylinder(15,100, 36, 36);
+
+        drawSphere3(15, 36, 36);  // head of the cylinder
+    }
+    glPopMatrix();
+
+
+    glTranslatef(0, 300, 0);
     glRotatef(90, 1,0,0);
-    drawSphere1(35, 100, 50);
-
-    glRotatef(angle2, 1,0,0);
-
-    drawSphere2(35, 100, 50);
-
-    glTranslatef(0, 0, -50);
-
-    glRotatef(angle3, 1,0,0);
-    glRotatef(angle4, 0,0,1);
-    drawSphere1(15, 36, 36);
-
-    glTranslatef(0, 0, -100);
-    drawCylinder(15,100, 36, 36);
+    drawSquare(50);
 
 }
 
