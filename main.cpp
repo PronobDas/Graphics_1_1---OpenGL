@@ -74,7 +74,6 @@ void drawAxes()
 	}
 }
 
-
 void drawGrid()
 {
 	int i;
